@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aliyun.springboottrue.dao.RiskNameDao">
+    <insert id="addRiskName" parameterType="com.aliyun.springboottrue.Entity.dto.RiskNameDto">
+        INSERT INTO RISK_NAME
+        (ROW_ID,
+         RISK_NAME,
+         PUBLISH_TRADE,
+         RISK_LEVEL,
+         VOLTAGE_LEVEL,
+         WARNING_NO,
+         WARNING_YEAR,
+         DUTY_UNIT,
+         RISK_ANALYSIS,
+         CREATER,
+         CREATE_ID,
+         CREATE_TIME,
+         UPDATE_TIME,
+         IS_DELETE)
+        VALUES (#{dto.rowId},
+                #{dto.riskName},
+                #{dto.publishTrade},
+                #{dto.riskLevel},
+                #{dto.voltageLevel},
+                #{dto.warningNo},
+                #{dto.warningYear},
+                #{dto.dutyUnit},
+                #{dto.riskAnalysis},
+                #{dto.creater},
+                #{dto.createId},
+                #{dto.createTime},
+                #{dto.updateTime},
+                '0')
+    </insert>
+
+    <select id="selectRiskName" parameterType="com.aliyun.springboottrue.Entity.dto.RiskNameDto"
+            resultType="com.aliyun.springboottrue.Entity.vo.RiskNameVo">
+        select
+        ROW_ID,
+        RISK_NAME,
+        PUBLISH_TRADE,
+        RISK_LEVEL,
+        VOLTAGE_LEVEL,
+        WARNING_NO,
+        WARNING_YEAR,
+        DUTY_UNIT,
+        RISK_ANALYSIS,
+        CREATER,
+        CREATE_ID,
+        CREATE_TIME,
+        UPDATE_TIME
+        from RISK_NAME
+        <where>
+            AND IS_DELETE ='0'
+            <if test="dto.riskName !=null and dto.riskName !=''">
+                AND RISK_NAME LIKE CONCAT(CONCAT('%',#{dto.riskName}),'%')
+            </if>
+        </where>
+    </select>
+
+    <update id="logicUpdateById" parameterType="com.aliyun.springboottrue.Entity.dto.RiskNameDto">
+        update RISK_NAME
+        set IS_DELETE='1'
+        where ROW_ID = #{dto.rowId}
+    </update>
+    <!--
+             collection 指定要遍历的集合
+             list类型的参数会特殊处理封装在map中，map的key就叫list
+             item 将当前遍历出的元素赋值给指定 的变量
+             #{变量名} 就能取出变量的值也就是当前遍历
+             separator 每个元素之间的分隔符
+             open 遍历出所有结果拼接一个开始的字符
+             close: 遍历出所有结果拼接一个结束的字符
+             index : 索引  遍历list的时候index是索引  ,item就是当前值
+                        遍历map的时候index表示的就是map的key    item就是map的值
+           -->
+    <update id="logicBatchUpdateById" parameterType="java.util.List">
+        update RISK_NAME q
+        set q.IS_DELETE='0'
+        where ROW_ID IN
+        <if test="ids !=null">
+            <foreach collection="ids" item="list" index="i" open="(" close=")" separator=",">
+                #{list}
+            </foreach>
+        </if>
+    </update>
+
+    <insert id="batchAddRiskName" useGeneratedKeys="false">
+
+        insert into RISK_NAME (
+        ROW_ID,
+        RISK_NAME,
+        PUBLISH_TRADE,
+        RISK_LEVEL,
+        VOLTAGE_LEVEL,
+        WARNING_NO,
+        WARNING_YEAR,
+        DUTY_UNIT,
+        RISK_ANALYSIS,
+        CREATER,
+        CREATE_ID,
+        CREATE_TIME,
+        UPDATE_TIME)
+        values
+        <foreach collection="dto.measure" item="dto" index="i" open="(" close=")" separator=",">
+            #{dto.rowId},
+            #{dto.riskName},
+            #{dto.publishTrade},
+            #{dto.riskLevel},
+            #{dto.voltageLevel},
+            #{dto.warningNo},
+            #{dto.warningYear},
+            #{dto.dutyUnit},
+            #{dto.riskAnalysis},
+            #{dto.creater},
+            #{dto.createId},
+            #{dto.createTime},
+            #{dto.updateTime}
+        </foreach>
+
+    </insert>
+    <select id="ExportRiskNameMessage" parameterType="com.aliyun.springboottrue.Entity.dto.RiskNameDto"
+            resultType="com.aliyun.springboottrue.Entity.excel.RiskNameExcelVo">
+        select WARNING_NO,
+               RISK_NAME,
+               PUBLISH_TRADE,
+               RISK_LEVEL,
+               VOLTAGE_LEVEL,
+               CREATER,
+               DUTY_UNIT,
+               CREATE_TIME
+        from RISK_NAME
+        where IS_DELETE = '0'
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <select id="ExportRiskNameMessageById" parameterType="com.aliyun.springboottrue.Entity.dto.RiskNameDto"
+            resultType="com.aliyun.springboottrue.Entity.excel.RiskNameExcelVo">
+        select
+        WARNING_NO,
+        RISK_NAME,
+        PUBLISH_TRADE,
+        RISK_LEVEL,
+        VOLTAGE_LEVEL,
+        CREATER,
+        DUTY_UNIT,
+        CREATE_TIME
+        from RISK_NAME
+        where
+        IS_DELETE='0'
+
+        <if test="dto.ids!=null">
+            AND ROW_ID IN
+            <foreach collection="dto.ids" item="list" index="i" open="(" close=")" separator=",">
+                #{list}
+            </foreach>
+        </if>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <insert id="ImportRiskNameMessage" useGeneratedKeys="false">
+            INSERT INTO RISK_NAME (
+            ROW_ID,
+            WARNING_NO,
+            RISK_NAME,
+            PUBLISH_TRADE,
+            RISK_LEVEL,
+            VOLTAGE_LEVEL,
+            CREATER,
+            DUTY_UNIT,
+            CREATE_TIME,
+            IS_DELETE )
+            VALUES
+            <foreach collection="dto.measure" item="dto" index="i" open="(" close=")" separator=",">
+                #{dto.rowId},
+                #{dto.warningNo},
+                #{dto.riskName},
+                #{dto.publishTrade},
+                #{dto.riskLevel},
+                #{dto.voltageLevel},
+                #{dto.creater},
+                #{dto.dutyUnit},
+                #{dto.createTime},
+                #{dto.isDelete}
+            </foreach>
+    </insert>
+</mapper>

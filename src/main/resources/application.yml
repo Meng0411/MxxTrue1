@@ -1,0 +1,36 @@
+#端口号
+server:
+  port: 8080
+
+#项目名称
+spring:
+  application:
+    name: SpringBootTrue
+#数据库驱动
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?serverTimezone=UTC&characterEncoding=utf-8
+    username: root
+    password: 1234
+
+
+    ## MULTIPART (MultipartProperties)
+    # 开启 multipart 上传功能
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+  thymeleaf:
+    cache: false
+    suffix: .html
+    encoding: UTF-8
+    prefix: classpath:/templates/
+  resources:
+    static-locations: classpath:/templates/,classpath:/static/
+
+
+
+
+
